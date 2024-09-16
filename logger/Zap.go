@@ -16,6 +16,7 @@ package logger
 
 import (
 	"fmt"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -115,6 +116,11 @@ func (l *zapLogger) WithFields(fields Fields) LogEntry {
 		Level:  convertZapToInternalLevel(level),
 	}
 }
+
+func (l *zapLogger) GetLevel() Level {
+	return convertZapToInternalLevel(GetLevel(l.sugaredLogger.Desugar().Core()))
+}
+
 func GetLevel(core zapcore.Core) zapcore.Level {
 	if core.Enabled(zapcore.DebugLevel) {
 

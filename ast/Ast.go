@@ -60,24 +60,30 @@ var (
 )
 
 // SetLogger changes default logger on external
-func SetLogger(log interface{}) {
+func SetLogger(externalLog interface{}) {
 	var entry logger.LogEntry
 
-	switch log.(type) {
+	switch log := externalLog.(type) {
 	case *zap.Logger:
-		log, ok := log.(*zap.Logger)
-		if !ok {
-
+		if log == nil {
 			return
 		}
 		entry = logger.NewZap(log)
 	case *logrus.Logger:
-		log, ok := log.(*logrus.Logger)
-		if !ok {
-
+		if log == nil {
 			return
 		}
 		entry = logger.NewLogrus(log)
+
+	case logger.Logger:
+		if log == nil {
+			return
+		}
+		entry = logger.LogEntry{
+			Logger: log,
+			Level:  log.GetLevel(),
+		}
+
 	default:
 
 		return

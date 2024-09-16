@@ -158,6 +158,10 @@ func (l *logrusLogEntry) Fatalf(template string, args ...interface{}) {
 	l.entry.Fatalf(template, args...)
 }
 
+func (l *logrusLogEntry) GetLevel() Level {
+	return convertLogrusToInternalLevel(l.entry.Level)
+}
+
 func (l *logrusLogEntry) WithFields(fields Fields) LogEntry {
 
 	return LogEntry{

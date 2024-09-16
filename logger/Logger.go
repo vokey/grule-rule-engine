@@ -73,6 +73,7 @@ type Logger interface {
 	Printf(format string, args ...interface{})
 
 	WithFields(keyValues Fields) LogEntry
+	GetLevel() Level
 }
 
 var (
@@ -91,21 +92,25 @@ func init() {
 
 // SetLogger changes default logger on external
 func SetLogger(externalLog interface{}) {
-	switch externalLog.(type) {
+	switch log := externalLog.(type) {
 	case *zap.Logger:
-		log, ok := externalLog.(*zap.Logger)
-		if !ok {
-
+		if log == nil {
 			return
 		}
 		Log = NewZap(log)
 	case *logrus.Logger:
-		log, ok := externalLog.(*logrus.Logger)
-		if !ok {
-
+		if log == nil {
 			return
 		}
 		Log = NewLogrus(log)
+	case Logger:
+		if log == nil {
+			return
+		}
+		Log = LogEntry{
+			Logger: log.WithFields(Fields{"lib": "grule-rule-engine"}),
+			Level:  log.GetLevel(),
+		}
 	default:
 
 		return

@@ -17,10 +17,11 @@ package engine
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 	"sort"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/logger"
@@ -44,23 +45,29 @@ var (
 func SetLogger(externalLog interface{}) {
 	var entry logger.LogEntry
 
-	switch externalLog.(type) {
+	switch log := externalLog.(type) {
 	case *zap.Logger:
-		log, ok := externalLog.(*zap.Logger)
-		if !ok {
-
+		if log == nil {
 			return
 		}
 		entry = logger.NewZap(log)
-	case *logrus.Logger:
-		log, ok := externalLog.(*logrus.Logger)
-		if !ok {
 
+	case *logrus.Logger:
+		if log == nil {
 			return
 		}
 		entry = logger.NewLogrus(log)
-	default:
 
+	case logger.Logger:
+		if log == nil {
+			return
+		}
+		entry = logger.LogEntry{
+			Logger: log,
+			Level:  log.GetLevel(),
+		}
+
+	default:
 		return
 	}
 
